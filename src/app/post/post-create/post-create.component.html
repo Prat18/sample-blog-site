@@ -1,0 +1,29 @@
+<!--wrap the value property in square brackets.
+    This will now directly target the value property of the underlying object.
+    Bind the value between quotation marks to it.
+    Create a marker using hash. (#postInput)
+-->
+<!-- <textarea name="" id="" cols="30" rows="10" [value] = "newPost" #postInput></textarea> -->
+<!--ngModel is angular feature called directive.-->
+<mat-card>
+  <mat-form-field>
+    <textarea matInput rows="10" [(ngModel)]="enteredValue" ></textarea>
+  </mat-form-field>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onAddPost()">Save Post
+  </button>
+</mat-card>
+
+<hr>
+<!-- we add event inside parenthesis (click).
+     Pass the name of the method that's a function in the component class.
+     This is called event binding.
+     Event binding is an angular feature which allows us to listen to events in a declarative
+     pass the marker as parameter.
+-->
+<!--<button (click)="onAddPost(postInput)">Save Post</button>-->
+
+<!-- String Interpolation {{ VarName }} -->
+<!-- <p>{{ newPost }}</p> -->
