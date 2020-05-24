@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-//import { Post } from './post/post.model';
+import { Post } from './post/post.model';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +7,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  // title = 'webapp';
-  // storedPosts: Post[] = [];
 
-  // onPostAdded(post: any){
-  //   this.storedPosts.push(post);
-  // }
+  storedPost: Post[] = [];
+
+  onPostAdded(post: any){
+    this.storedPost.push(post);
+  }
 }

@@ -1,31 +1,27 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { PostService } from '../posts.service';
 import { Post } from '../post.model';
-import { PostsService } from '../posts.service';
-import { Subscription } from 'rxjs';
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'app-post-list',
   templateUrl: './post-list.component.html',
   styleUrls: ['./post-list.component.css']
 })
+
 export class PostListComponent implements OnInit, OnDestroy {
-  /* posts = [
-    {title: 'First post', content: 'This is the first post.'},
-    {title: 'Second post', content: 'This is the second post.'},
-    {title: 'Third post', content: 'This is the Third post.'}
-  ]; */
-  //@Input()
+
+  // @Input()
   posts: Post[] = [];
   private postSub = new Subscription;
-
-  constructor(public postsService: PostsService) {}
+  constructor(public postService: PostService) {}
 
   ngOnInit() {
-    this.posts = this.postsService.getPost();
-    this.postSub = this.postsService.getPostUpdateListener()
-      .subscribe((posts: Post[]) => {
-        this.posts = posts;
-      });
+    this.postSub = this.postService.getPostUpdatedListener() // This is observer
+      .subscribe((posts: Post[]) => { // This is the logic (subscribe) is executed whenever .next is called in observable
+        this.posts = posts; // Argument is passed from Subject every time Subject.next() is executed.
+        // We can invoke (emit) Subject.next(), Subject.error() & Subject.complete()
+      })
   }
 
   ngOnDestroy() {
