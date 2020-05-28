@@ -1,5 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const postShema = require('./models/post')
+
+const constr = "mongodb+srv://prat__18:uW10LmkHoF6oD2xq@cluster0-1zw7b.mongodb.net/Post?retryWrites=true&w=majority"
+
+mongoose.connect(constr)
+  .then((res) => {
+    console.log("Connection successful!")
+  })
+  .catch((err) => {
+    console.log(err);
+  })
 
 const app = express();
 
@@ -13,18 +25,34 @@ app.use((req, res, next) => {
 })
 
 app.get('/post' ,(req, res, next) => {
-  posts = [
-    {id: "12345", title: "black hole", content: "project black"},
-    {id: "12346", title: "white hole", content: "project white"},
-    {id: "12347", title: "crimson hole", content: "project crimson"}
-  ]
-  res.status(201).json({message: "post from server!", posts});
+  postShema.find()
+    .then((result) => {
+      console.log(result);
+      res.status(201).json({message: "post from server!", posts: result});
+    })
 });
 
 app.post('/post', (req, res, next) => {
-  const post = req.body;
-  console.log(post);
-  res.status(200).json({message: "post from client has been recieved."});
+  const Post = new postShema({
+    title: req.body.title,
+    content: req.body.content
+  });
+  Post.save()
+    .then((result) => {
+      console.log("post successfully saved!");
+      res.status(200).json({
+        message: "post from client has been recieved.",
+        postId: result._id
+      });
+    })
+})
+
+app.delete('/post:id', (req, res, next) => {
+  postShema.deleteOne({ _id: req.params.id })
+    .then((result) => {
+      console.log(result);
+      res.status(200).json({message: "post deleted!"});
+    })
 })
 
 module.exports = app;
