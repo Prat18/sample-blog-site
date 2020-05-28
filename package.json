@@ -22,9 +22,12 @@
     "@angular/platform-browser": "~9.1.7",
     "@angular/platform-browser-dynamic": "~9.1.7",
     "@angular/router": "~9.1.7",
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "mongoose": "^5.9.16",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
+    "urlparser": "^0.3.9",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

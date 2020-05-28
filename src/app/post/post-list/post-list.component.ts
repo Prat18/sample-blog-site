@@ -17,7 +17,8 @@ export class PostListComponent implements OnInit, OnDestroy {
   constructor(public postService: PostService) {}
 
   ngOnInit() {
-    this.postSub = this.postService.getPostUpdatedListener() // This is observer
+    this.postService.getPost() // This is observer
+    this.postSub = this.postService.getPostUpdatedListener()
       .subscribe((posts: Post[]) => { // This is the logic (subscribe) is executed whenever .next is called in observable
         this.posts = posts; // Argument is passed from Subject every time Subject.next() is executed.
         // We can invoke (emit) Subject.next(), Subject.error() & Subject.complete()
