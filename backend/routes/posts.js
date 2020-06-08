@@ -30,9 +30,27 @@ const storage = multer.diskStorage({
 });
 
 router.get("", (req, res, next) => {
-  postShema.find().then((result) => {
-    res.status(201).json({ message: "post from server!", posts: result });
-  });
+  const pageSize = +req.query.pagesize;
+  const currentPage = +req.query.page;
+  const postQuery = postShema.find();
+  let fetchedPosts;
+  if (pageSize && currentPage) {
+    postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+  }
+  postQuery
+    .then((result) => {
+      fetchedPosts = result;
+      return postShema.count();
+    })
+    .then((count) => {
+      res
+        .status(201)
+        .json({
+          message: "post from server!",
+          posts: fetchedPosts,
+          maxPosts: count,
+        });
+    });
 });
 
 router.get("/:id", (req, res, next) => {
@@ -49,11 +67,11 @@ router.post(
   "",
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
-    const url = req.protocol + '://' + req.get("host");
+    const url = req.protocol + "://" + req.get("host");
     const Post = new postShema({
       title: req.body.title,
       content: req.body.content,
-      imagePath: url + "/images/" + req.file.filename
+      imagePath: url + "/images/" + req.file.filename,
     });
     Post.save().then((createdPost) => {
       console.log("post successfully saved!");
@@ -64,30 +82,36 @@ router.post(
           id: createdPost._id,
           title: createdPost.title,
           content: createdPost.content,
-          imagePath: createdPost.imagePath
-        }
+          imagePath: createdPost.imagePath,
+        },
       });
     });
   }
 );
 
-router.put("/:id",multer({ storage: storage }).single("image"), (req, res, next) => {
-  let imagePath = req.body.imagePath;
-  if (req.file) {
-    const url = req.protocol + '://' + req.get("host");
-    imagePath = url + "/images/" + req.file.filename;
+router.put(
+  "/:id",
+  multer({ storage: storage }).single("image"),
+  (req, res, next) => {
+    let imagePath = req.body.imagePath;
+    if (req.file) {
+      const url = req.protocol + "://" + req.get("host");
+      imagePath = url + "/images/" + req.file.filename;
+    }
+    const post = new postShema({
+      _id: req.body.id,
+      title: req.body.title,
+      content: req.body.content,
+      imagePath: imagePath,
+    });
+    postShema.updateOne({ _id: req.params.id }, post).then((result) => {
+      console.log(result);
+      res
+        .status(200)
+        .json({ message: "Update successful!", imagePath: "null" });
+    });
   }
-  const post = new postShema({
-    _id: req.body.id,
-    title: req.body.title,
-    content: req.body.content,
-    imagePath: imagePath
-  });
-  postShema.updateOne({ _id: req.params.id }, post).then((result) => {
-    console.log(result);
-    res.status(200).json({ message: "Update successful!", imagePath: "null" });
-  });
-});
+);
 
 router.delete("/:id", (req, res, next) => {
   postShema.deleteOne({ _id: req.params.id }).then((result) => {
