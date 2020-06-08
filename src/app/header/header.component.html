@@ -1,1 +1,9 @@
-<mat-toolbar color="primary">Pratyush's Blog</mat-toolbar>
+<mat-toolbar color="primary">
+  <span><a routerLink="/">Pratyush's Blog</a></span>
+  <span class="spacer"></span>
+  <ul>
+    <li>
+      <a mat-button routerLink="/create" routerLinkActive="mat-accent">New Blog</a>
+    </li>
+  </ul>
+</mat-toolbar>

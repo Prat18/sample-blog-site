@@ -17,36 +17,37 @@
 <!-- String Interpolation {{ VarName }} -->
 <!-- <p>{{ newPost }}</p> -->
 
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+
 <mat-card>
-  <form (submit)="onAddPost(postForm)" #postForm="ngForm">
+  <form [formGroup]="form" (submit)="onSavePost()"  *ngIf="!isLoading">
     <mat-form-field>
       <input
         matInput
         type="text"
-        name="title"
-        ngModel
-        required
+        formControlName="title"
         placeholder="Blog Title"
-        #title="ngModel">
-        <mat-error *ngIf="title.invalid">Plese enter a blog title.</mat-error>
+      />
+      <mat-error *ngIf="form.get('title').invalid">Plese enter a blog title.</mat-error>
     </mat-form-field>
+    <div>
+      <button mat-stroked-button color="primary" type="button" (click)="filePicker.click()">Pick Image</button>
+      <input type="file" #filePicker (change)="onImagePicked($event)"/>
+    </div>
+    <div class="image-preview" *ngIf="imagePreview != '' && imagePreview">
+      <img [src]="imagePreview" [alt]="form.value.title">
+    </div>
     <mat-form-field>
       <textarea
         matInput
         rows="10"
-        name="content"
-        ngModel
+        formControlName="content"
         placeholder="Blog Content"
-        required
-        #content="ngModel">
+      >
       </textarea>
-      <mat-error *ngIf="content.invalid">Please enter content.</mat-error>
+      <mat-error *ngIf="form.get('content').invalid">Please enter content.</mat-error>
     </mat-form-field>
-    <br>
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit">Save Post
-    </button>
+    <br />
+    <button mat-raised-button color="primary" type="submit">Save Post</button>
   </form>
 </mat-card>

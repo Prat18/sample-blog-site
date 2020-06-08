@@ -1,8 +1,8 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const postShema = require('./models/post')
-
+const postsRoutes = require('./routes/posts');
 const constr = "mongodb+srv://prat__18:uW10LmkHoF6oD2xq@cluster0-1zw7b.mongodb.net/Post?retryWrites=true&w=majority"
 
 mongoose.connect(constr)
@@ -16,6 +16,8 @@ mongoose.connect(constr)
 const app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use("/images", express.static(path.join("backend/images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -24,35 +26,7 @@ app.use((req, res, next) => {
   next();
 })
 
-app.get('/post' ,(req, res, next) => {
-  postShema.find()
-    .then((result) => {
-      console.log(result);
-      res.status(201).json({message: "post from server!", posts: result});
-    })
-});
+app.use("/post/", postsRoutes);
 
-app.post('/post', (req, res, next) => {
-  const Post = new postShema({
-    title: req.body.title,
-    content: req.body.content
-  });
-  Post.save()
-    .then((result) => {
-      console.log("post successfully saved!");
-      res.status(200).json({
-        message: "post from client has been recieved.",
-        postId: result._id
-      });
-    })
-})
-
-app.delete('/post:id', (req, res, next) => {
-  postShema.deleteOne({ _id: req.params.id })
-    .then((result) => {
-      console.log(result);
-      res.status(200).json({message: "post deleted!"});
-    })
-})
 
 module.exports = app;
