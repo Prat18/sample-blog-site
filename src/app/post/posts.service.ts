@@ -27,12 +27,14 @@ export class PostService {
                 _id: any;
                 content: any;
                 imagePath: any;
+                creator: any;
               }) => {
                 return {
                   title: post.title,
                   content: post.content,
                   id: post._id,
                   imagePath: post.imagePath,
+                  creator: post.creator
                 };
               }
             ),
@@ -41,6 +43,7 @@ export class PostService {
         })
       )
       .subscribe((transformedPostData) => {
+        console.log(transformedPostData);
         this.posts = transformedPostData.posts;
         this.PostUpdated.next({
           posts: [...this.posts],
@@ -59,6 +62,7 @@ export class PostService {
       title: string;
       content: string;
       imagePath: string;
+      creator: string;
     }>('http://localhost:3000/post/' + id);
   }
 
@@ -92,6 +96,7 @@ export class PostService {
         title: title,
         content: content,
         imagePath: image,
+        creator: null
       };
     }
     this.http

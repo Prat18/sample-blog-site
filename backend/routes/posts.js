@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const postShema = require("../models/post");
+const checkAuth = require("../middleware/check-auth");
 
 const router = express.Router();
 
@@ -22,9 +23,6 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const name = file.originalname.toLowerCase().split(" ").join("-");
     const ext = MIME_TYPE_MAP[file.mimetype];
-    console.log(file.mimetype);
-    console.log("name " + name);
-    console.log("extension " + ext);
     cb(null, name + "-" + Date.now() + "." + ext);
   },
 });
@@ -43,13 +41,11 @@ router.get("", (req, res, next) => {
       return postShema.count();
     })
     .then((count) => {
-      res
-        .status(201)
-        .json({
-          message: "post from server!",
-          posts: fetchedPosts,
-          maxPosts: count,
-        });
+      res.status(201).json({
+        message: "post from server!",
+        posts: fetchedPosts,
+        maxPosts: count,
+      });
     });
 });
 
@@ -65,6 +61,7 @@ router.get("/:id", (req, res, next) => {
 
 router.post(
   "",
+  checkAuth,
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     const url = req.protocol + "://" + req.get("host");
@@ -72,10 +69,10 @@ router.post(
       title: req.body.title,
       content: req.body.content,
       imagePath: url + "/images/" + req.file.filename,
+      creator: req.userData.userId,
     });
     Post.save().then((createdPost) => {
       console.log("post successfully saved!");
-      console.log(createdPost);
       res.status(200).json({
         message: "post from client has been recieved.",
         post: {
@@ -91,6 +88,7 @@ router.post(
 
 router.put(
   "/:id",
+  checkAuth,
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     let imagePath = req.body.imagePath;
@@ -103,21 +101,26 @@ router.put(
       title: req.body.title,
       content: req.body.content,
       imagePath: imagePath,
+      creator: req.userData.userId
     });
-    postShema.updateOne({ _id: req.params.id }, post).then((result) => {
-      console.log(result);
-      res
-        .status(200)
-        .json({ message: "Update successful!", imagePath: "null" });
-    });
+    postShema
+      .updateOne({ _id: req.params.id, creator: req.userData.userId }, post)
+      .then((result) => {
+        if (result.nModified > 0)
+          res.status(200).json({ message: "post updated!" });
+        else res.status(401).json({ message: "not authorize!" });
+      });
   }
 );
 
-router.delete("/:id", (req, res, next) => {
-  postShema.deleteOne({ _id: req.params.id }).then((result) => {
-    console.log(result);
-    res.status(200).json({ message: "post deleted!" });
-  });
+router.delete("/:id", checkAuth, (req, res, next) => {
+  postShema
+    .deleteOne({ _id: req.params.id, creator: req.userData.userId })
+    .then((result) => {
+      if (result.n > 0)
+        res.status(200).json({ message: "post deleted!" });
+      else res.status(401).json({ message: "not authorize!" });
+    });
 });
 
 module.exports = router;
