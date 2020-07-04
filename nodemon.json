@@ -1,0 +1,6 @@
+{
+  "env" : {
+    "MONGO_ATLAS_PW" : "uW10LmkHoF6oD2xq",
+    "JWT_KEY" : "this-is-my-secret-sauce"
+  }
+}

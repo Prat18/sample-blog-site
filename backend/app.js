@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
-const constr = "mongodb+srv://prat__18:uW10LmkHoF6oD2xq@cluster0-1zw7b.mongodb.net/Post?retryWrites=true&w=majority"
+const constr = "mongodb+srv://prat__18:" + process.env.MONGO_ATLAS_PW + "@cluster0-1zw7b.mongodb.net/Post?retryWrites=true&w=majority"
 
 mongoose.connect(constr, {useNewUrlParser: true, useUnifiedTopology: true })
   .then((res) => {

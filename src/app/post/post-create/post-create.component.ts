@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core'; // importing Component from node_modules/angular/core.
+import { Component, OnInit, OnDestroy } from '@angular/core'; // importing Component from node_modules/angular/core.
 import { PostService } from '../posts.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 //Component Decorator is used to make angular understand, this class is component.
 //Component decorator takes some configuration in the form of a javascript object which we pass to it
 //in that object we need to define things like the template, selector, .
@@ -13,7 +15,7 @@ import { mimeType } from './mime-type.validator';
   styleUrls: ['./post-create.component.css'],
 })
 //creating component
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
   //Declaring var/property
   //Adding method which is used in html file.
   /* onAddPost(inputPost: HTMLTextAreaElement) {
@@ -34,10 +36,18 @@ export class PostCreateComponent implements OnInit {
   isLoading: boolean = false;
   form: FormGroup;
   imagePreview: string;
+  private authStatusSub: Subscription;
 
-  constructor(public postService: PostService, public route: ActivatedRoute) {}
+  constructor(
+    public postService: PostService,
+    public route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
+    this.authStatusSub = this.authService.getAuthStatusListener().subscribe((authStatus) => {
+      this.isLoading = false;
+    })
     this.form = new FormGroup({
       title: new FormControl(null, {
         validators: [Validators.required, Validators.minLength(3)],
@@ -61,12 +71,12 @@ export class PostCreateComponent implements OnInit {
             title: postData.title,
             content: postData.content,
             imagePath: postData.imagePath,
-            creator: postData.creator
+            creator: postData.creator,
           };
           this.form.setValue({
             title: this.post.title,
             content: this.post.content,
-            image: this.post.imagePath
+            image: this.post.imagePath,
           });
         });
       } else {
@@ -89,7 +99,11 @@ export class PostCreateComponent implements OnInit {
         this.form.value.image
       );
     } else
-      this.postService.addPost(this.form.value.title, this.form.value.content, this.form.value.image);
+      this.postService.addPost(
+        this.form.value.title,
+        this.form.value.content,
+        this.form.value.image
+      );
     this.form.reset();
   }
 
@@ -103,5 +117,9 @@ export class PostCreateComponent implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
+  }
+
+  ngOnDestroy() {
+    this.authStatusSub.unsubscribe();
   }
 }
